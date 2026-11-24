@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Market Correlation Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Home">
+        <span class="brand-mark">M</span>
+        <span>Market Lab</span>
+      </a>
+      <nav class="main-nav">
+        <button class="nav-tab active" id="explorerTab" type="button">Explorer</button>
+        <button class="nav-tab" id="gameTab" type="button">Correlation Sprint <span class="game-chip">PLAY</span></button>
+        <a href="#methodology" id="methodTab">Methodology</a>
+      </nav>
+    </header>
+
+    <main>
+      <div id="explorerView">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">CORRELATION WORKBENCH</p>
+          <h1>Market Uncertainty &amp;<br><span>Asset Returns Explorer</span></h1>
+        </div>
+        <p class="intro-copy">Compare market relationships across assets, metrics, and time horizons.</p>
+      </section>
+
+      <section class="controls" aria-label="Analysis controls">
+        <div class="control-grid">
+          <label><span>Asset X</span><select id="assetX"><option value="^VIX" selected>VIX Index</option></select></label>
+          <label><span>Asset Y</span><select id="assetY"><option value="GC=F" selected>Gold Futures</option></select></label>
+          <label><span>Metric</span><select id="metric">
+            <option value="pct_return">Daily % return</option>
+            <option value="point_change">Point change</option>
+            <option value="level">Closing level</option>
+          </select></label>
+          <label><span>Date range</span><select id="range">
+            <option value="1Y">1 Year</option><option value="5Y" selected>5 Years</option>
+            <option value="10Y">10 Years</option><option value="MAX">Maximum</option><option value="CUSTOM">Custom</option>
+          </select></label>
+          <label><span>Rolling window</span><select id="window">
+            <option value="30">30 days</option><option value="60" selected>60 days</option>
+            <option value="90">90 days</option><option value="180">180 days</option>
+          </select></label>
+          <label><span>Day offset (trading days)</span><select id="dayOffset"></select></label>
+        </div>
+        <p class="offset-help">Offset compares X on day t with Y on day t + offset: 0 = same day; +1 = Y one trading day later; −1 = Y one trading day earlier.</p>
+        <div class="custom-dates" id="customDates" hidden>
+          <label><span>Start date</span><input type="date" id="startDate"></label>
+          <label><span>End date</span><input type="date" id="endDate"></label>
+        </div>
+        <div class="custom-ticker">
+          <label for="customTicker">Custom ticker</label>
+          <input id="customTicker" placeholder="e.g. MSFT or BTC-USD" />
+        </div>
+        <button id="runButton" class="run-button"><span>Analyze relationship</span><span class="arrow">→</span></button>
+      </section>
+
+      <div id="error" class="error" role="alert" hidden></div>
+
+      <section class="stats-section">
+        <div class="stats-heading">
+          <div><p class="eyebrow">LIVE ANALYSIS</p><h2 id="pairTitle">VIX × Gold Futures</h2></div>
+          <span class="status" id="status">Ready</span>
+        </div>
+        <div class="analysis-cards">
+          <div class="stats-grid">
+            <article class="stat-card accent"><span>Sample Size (n)</span><strong id="nValue">—</strong><small id="dateValue">Waiting for data</small></article>
+            <article class="stat-card"><span>Pearson <i>r</i></span><strong id="pearsonValue">—</strong><small id="pearsonP">p-value —</small></article>
+            <article class="stat-card"><span>Spearman <i>ρ</i></span><strong id="spearmanValue">—</strong><small id="spearmanP">p-value —</small></article>
+          </div>
+          <article class="interpretation-card">
+            <p class="eyebrow">CORRELATION IN WORDS</p>
+            <h3 id="interpretationLabel">Waiting for live results</h3>
+            <p id="interpretationText">The dashboard will describe how the selected assets move together once the analysis loads.</p>
+            <small id="significanceText">Correlation does not imply causation.</small>
+          </article>
+        </div>
+      </section>
+
+      <section class="charts">
+        <article class="chart-card">
+          <div class="chart-head"><div><p class="eyebrow">RELATIONSHIP</p><h3>Scatter &amp; Regression</h3><small id="scatterSubtitle">Sample n = —</small></div><div class="chart-badges"><span id="scatterUnit">Daily % return</span><span id="scatterOffsetBadge">Offset: 0</span></div></div>
+          <div id="scatterChart" class="chart"></div>
+        </article>
+        <article class="chart-card">
+          <div class="chart-head"><div><p class="eyebrow">TIME-VARYING</p><h3>Rolling Correlation</h3><small id="rollingSubtitle">Sample n = —</small></div><div class="chart-badges"><span id="windowBadge">60-day window</span><span id="rollingOffsetBadge">Offset: 0</span></div></div>
+          <div id="rollingChart" class="chart"></div>
+        </article>
+      </section>
+
+      <section class="methodology" id="methodology">
+        <p class="eyebrow">METHODOLOGY</p>
+        <p>Correlation does not imply causation. Daily financial observations may exhibit autocorrelation, and p-values should be interpreted with caution.</p>
+      </section>
+      </div>
+
+      <section id="gameView" class="game-view" hidden>
+        <div class="game-heading">
+          <div>
+            <p class="eyebrow">QUICK MARKET QUIZ</p>
+            <h1>Correlation <span>Sprint</span></h1>
+            <p class="game-lede">Predict the relationship before the clock runs out. Each game randomly selects five questions from a pool of 30 across companies, indices, commodities, currencies, and crypto.</p>
+          </div>
+          <div class="score-card"><span>GAME SCORE</span><strong id="gameScore">0</strong><small>points</small></div>
+        </div>
+
+        <div class="game-layout">
+          <article class="game-card">
+            <div class="round-meta">
+              <span class="round-label">QUESTION <strong id="roundNumber">1 / 5</strong></span>
+              <span class="timer" id="gameTimer">15s</span>
+            </div>
+            <div class="timer-track"><div id="timerBar"></div></div>
+            <p class="eyebrow">YOUR PREDICTION</p>
+            <h2 id="gameQuestion">Ready for a quick prediction?</h2>
+            <p class="game-context" id="gameContext">The quiz uses the current Explorer settings.</p>
+            <div class="answer-options" id="answerOptions">
+              <button type="button" class="answer-option" data-answer="positive" disabled>
+                <span class="answer-icon">↗</span><span><strong>Positive</strong><small>They tend to move together</small></span>
+              </button>
+              <button type="button" class="answer-option" data-answer="negligible" disabled>
+                <span class="answer-icon">↔</span><span><strong>Negligible</strong><small>No clear linear relationship</small></span>
+              </button>
+              <button type="button" class="answer-option" data-answer="negative" disabled>
+                <span class="answer-icon">↘</span><span><strong>Negative</strong><small>They tend to move oppositely</small></span>
+              </button>
+            </div>
+            <div class="game-feedback" id="gameFeedback" aria-live="polite">Start a round when you're ready. The timer begins once the live data is loaded.</div>
+            <button type="button" class="run-button game-start" id="startGameButton"><span>Start a round</span><span class="arrow">→</span></button>
+          </article>
+          <aside class="game-rules">
+            <p class="eyebrow">HOW TO SCORE</p>
+            <h3>Quick thinking pays off</h3>
+            <ul>
+              <li>Correct prediction: <strong>100 points</strong></li>
+              <li>Speed bonus: <strong>10 points per second left</strong></li>
+              <li>Incorrect or timed out: <strong>0 points</strong></li>
+            </ul>
+            <p>Categories use Pearson <i>r</i>: positive when <i>r</i> ≥ 0.10, negligible when |<i>r</i>| &lt; 0.10, and negative when <i>r</i> ≤ −0.10.</p>
+            <p>This is a learning game, not investment advice. A correct guess isn't evidence of causation or a reliable trading signal.</p>
+            <button type="button" class="text-button" id="backToExplorer">Adjust Explorer settings →</button>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <div id="tooltip" class="tooltip" hidden></div>
+    <script src="/frontend/app.js"></script>
+  </body>
+</html>
