@@ -13,12 +13,14 @@ const els = {};
   "spearmanValue","spearmanP","scatterUnit","windowBadge","scatterChart","rollingChart","tooltip",
   "scatterSubtitle","rollingSubtitle","scatterOffsetBadge","rollingOffsetBadge","interpretationLabel","interpretationText","significanceText",
   "explorerView","gameView","explorerTab","gameTab","methodTab","backToExplorer","gameScore","roundNumber","gameTimer","timerBar",
-  "gameQuestion","gameContext","answerOptions","gameFeedback","startGameButton"
+  "gameQuestion","gameContext","answerOptions","gameFeedback","gameFeedbackTitle","gameFeedbackText","startGameButton",
+  "gameLayout","gameResults","playAgainButton","resultsScore","resultsCorrect","resultsAccuracy","resultsMessage"
 ].forEach(id => els[id] = document.getElementById(id));
 
 const GAME_SECONDS = 15;
 const GAME_ROUNDS = 5;
 let gameScore = 0;
+let gameCorrectAnswers = 0;
 let nextQuestionIndex = 0;
 let currentQuestionIndex = null;
 let selectedQuestions = [];
@@ -105,6 +107,7 @@ async function init() {
   els.methodTab.addEventListener("click", () => showView("explorer"));
   els.backToExplorer.addEventListener("click", () => showView("explorer"));
   els.startGameButton.addEventListener("click", startGameRound);
+  els.playAgainButton.addEventListener("click", startGameRound);
   els.answerOptions.addEventListener("click", event => {
     const option = event.target.closest("[data-answer]");
     if (option && !option.disabled && gameData) submitGameAnswer(option.dataset.answer);
@@ -196,14 +199,19 @@ async function startGameRound() {
     selectedQuestions = chooseRandomQuestions(GAME_ROUNDS);
     nextQuestionIndex = 0;
     gameScore = 0;
+    gameCorrectAnswers = 0;
     els.gameScore.textContent = "0";
+    els.gameLayout.hidden = false;
+    els.gameResults.hidden = true;
     els.startGameButton.querySelector("span:first-child").textContent = "Loading live data…";
   }
   currentQuestionIndex = nextQuestionIndex;
   const question = selectedQuestions[currentQuestionIndex];
   els.startGameButton.disabled = true;
   els.startGameButton.querySelector("span:first-child").textContent = "Loading live data…";
-  els.gameFeedback.textContent = "Loading this question's live market data…";
+  els.gameFeedback.classList.remove("correct", "incorrect", "timeout");
+  els.gameFeedbackTitle.textContent = "Loading question";
+  els.gameFeedbackText.textContent = "Fetching this question's live market data…";
   els.answerOptions.querySelectorAll("[data-answer]").forEach(button => {
     button.disabled = true;
     button.classList.remove("correct", "incorrect");
@@ -228,13 +236,15 @@ async function startGameRound() {
     els.gameTimer.textContent = `${secondsRemaining}s`;
     els.timerBar.style.width = "100%";
     els.gameContext.textContent = `${metricName(data.metric)} · ${data.start_date} to ${data.end_date} · ${offsetLabel(data.day_offset)} · n = ${data.sample_size.toLocaleString()}`;
-    els.gameFeedback.textContent = "Choose your prediction before the timer runs out.";
+    els.gameFeedbackTitle.textContent = "Make your prediction";
+    els.gameFeedbackText.textContent = "Choose an answer before the timer runs out.";
     els.answerOptions.querySelectorAll("[data-answer]").forEach(button => button.disabled = false);
     els.startGameButton.querySelector("span:first-child").textContent = "Next round";
     beginGameTimer();
   } catch (error) {
     gameData = null;
-    els.gameFeedback.textContent = error.message;
+    els.gameFeedbackTitle.textContent = "Could not load question";
+    els.gameFeedbackText.textContent = error.message;
     els.startGameButton.querySelector("span:first-child").textContent = "Try again";
   } finally {
     els.startGameButton.disabled = false;
@@ -277,6 +287,7 @@ function finishGameRound(answer) {
   const isCorrect = answer === correctAnswer;
   const points = isCorrect ? 100 + secondsRemaining * 10 : 0;
   gameScore += points;
+  if (isCorrect) gameCorrectAnswers += 1;
   els.gameScore.textContent = gameScore.toLocaleString();
   els.answerOptions.querySelectorAll("[data-answer]").forEach(button => {
     button.disabled = true;
@@ -284,16 +295,39 @@ function finishGameRound(answer) {
     else if (button.dataset.answer === answer) button.classList.add("incorrect");
   });
 
-  const result = answer === null ? "Time's up!" : isCorrect ? "Correct!" : "Not quite.";
-  els.gameFeedback.textContent = `${result} Pearson r = ${gameData.pearson.r.toFixed(3)} (${correctAnswer}). ${isCorrect ? `+${points} points — 100 for accuracy and ${secondsRemaining * 10} for speed.` : "0 points this round."}`;
+  const result = answer === null ? "Time's up!" : isCorrect ? "Correct!" : "Incorrect";
+  els.gameFeedback.classList.remove("correct", "incorrect", "timeout");
+  els.gameFeedback.classList.add(isCorrect ? "correct" : answer === null ? "timeout" : "incorrect");
+  els.gameFeedbackTitle.textContent = result;
+  const answerText = answer === null
+    ? `The correct answer was ${formatCategory(correctAnswer)}.`
+    : isCorrect
+      ? `Your answer, ${formatCategory(answer)}, was right.`
+      : `You chose ${formatCategory(answer)}. The correct answer was ${formatCategory(correctAnswer)}.`;
+  els.gameFeedbackText.textContent = `${answerText} Pearson r = ${gameData.pearson.r.toFixed(3)}. ${
+    isCorrect ? `+${points} points (100 accuracy + ${secondsRemaining * 10} speed bonus).` : "0 points this question."
+  }`;
   nextQuestionIndex = currentQuestionIndex + 1;
   if (nextQuestionIndex >= GAME_ROUNDS) {
-    els.startGameButton.querySelector("span:first-child").textContent = "Start a new 5-question game";
-    els.gameFeedback.textContent += " You completed all five questions!";
+    showGameResults();
   } else {
     els.startGameButton.querySelector("span:first-child").textContent = "Next question";
   }
   gameData = null;
+}
+
+function formatCategory(category) {
+  return category[0].toUpperCase() + category.slice(1);
+}
+
+function showGameResults() {
+  const accuracy = Math.round(gameCorrectAnswers / GAME_ROUNDS * 100);
+  els.resultsScore.textContent = gameScore.toLocaleString();
+  els.resultsCorrect.textContent = `${gameCorrectAnswers} / ${GAME_ROUNDS}`;
+  els.resultsAccuracy.textContent = `${accuracy}%`;
+  els.resultsMessage.textContent = `You got ${gameCorrectAnswers} of ${GAME_ROUNDS} questions right and earned ${gameScore.toLocaleString()} points.`;
+  els.gameLayout.hidden = true;
+  els.gameResults.hidden = false;
 }
 
 function render(data) {

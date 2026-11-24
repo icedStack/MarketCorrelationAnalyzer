@@ -118,7 +118,7 @@
           <div class="score-card"><span>GAME SCORE</span><strong id="gameScore">0</strong><small>points</small></div>
         </div>
 
-        <div class="game-layout">
+        <div id="gameLayout" class="game-layout">
           <article class="game-card">
             <div class="round-meta">
               <span class="round-label">QUESTION <strong id="roundNumber">1 / 5</strong></span>
@@ -139,7 +139,10 @@
                 <span class="answer-icon">↘</span><span><strong>Negative</strong><small>They tend to move oppositely</small></span>
               </button>
             </div>
-            <div class="game-feedback" id="gameFeedback" aria-live="polite">Start a round when you're ready. The timer begins once the live data is loaded.</div>
+            <div class="game-feedback" id="gameFeedback" aria-live="polite">
+              <strong id="gameFeedbackTitle">Ready to play</strong>
+              <p id="gameFeedbackText">Start a round when you're ready. The timer begins once live data is loaded.</p>
+            </div>
             <button type="button" class="run-button game-start" id="startGameButton"><span>Start a round</span><span class="arrow">→</span></button>
           </article>
           <aside class="game-rules">
@@ -155,6 +158,17 @@
             <button type="button" class="text-button" id="backToExplorer">Adjust Explorer settings →</button>
           </aside>
         </div>
+        <section id="gameResults" class="game-results" aria-live="polite" hidden>
+          <p class="eyebrow">SPRINT COMPLETE</p>
+          <h2>That's a wrap.</h2>
+          <p id="resultsMessage" class="results-message"></p>
+          <div class="results-stats">
+            <article><span>FINAL SCORE</span><strong id="resultsScore">0</strong><small>points</small></article>
+            <article><span>ANSWERS RIGHT</span><strong id="resultsCorrect">0 / 5</strong><small>out of 5 questions</small></article>
+            <article><span>ACCURACY</span><strong id="resultsAccuracy">0%</strong><small>correct predictions</small></article>
+          </div>
+          <button type="button" class="run-button" id="playAgainButton"><span>Play again</span><span class="arrow">→</span></button>
+        </section>
       </section>
     </main>
     <div id="tooltip" class="tooltip" hidden></div>

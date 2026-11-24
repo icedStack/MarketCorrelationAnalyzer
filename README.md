@@ -17,6 +17,8 @@ Open <http://127.0.0.1:8000>. The backend serves the frontend and fetches Yahoo 
 
 Asset X and Asset Y each have their own custom ticker field. Enter a Yahoo Finance symbol and choose **Use** (or press Enter) to apply it to that asset and refresh the analysis.
 
+Correlation Sprint marks each prediction as correct, incorrect, or timed out and reveals the actual correlation. After five questions, a results screen shows the final score, correct answers, and accuracy, with an option to play again.
+
 ## Project layout
 
 - `frontend/` — dashboard and Correlation Sprint

@@ -109,6 +109,21 @@ select:focus,input:focus { border-color:var(--lime); }
 .game-rules li strong { color:var(--ink); }
 .game-rules>p:not(.eyebrow) { color:var(--muted);font-size:11px;line-height:1.6; }
 .text-button { margin-top:6px;padding:0;border:0;background:none;color:var(--green);font:700 12px "DM Sans";cursor:pointer; }
+.game-feedback { border:1px solid transparent; }
+.game-feedback strong { display:block;margin-bottom:3px;color:var(--ink);font-size:13px; }
+.game-feedback p { margin:0; }
+.game-feedback.correct { border-color:#b9d8c0;background:#eef8f0;color:#315d3b; }
+.game-feedback.incorrect { border-color:#e4c2bd;background:#fff2ef;color:#82483f; }
+.game-feedback.timeout { border-color:#eadbb5;background:#fff9e9;color:#755e2f; }
+.game-results { max-width:760px;margin:36px auto;padding:32px;background:var(--card);border:1px solid var(--line);border-radius:10px;text-align:center; }
+.game-results h2 { margin:4px 0 8px;font:700 30px "Manrope"; }
+.results-message { margin:0;color:var(--muted);font-size:14px;line-height:1.6; }
+.results-stats { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:24px 0; }
+.results-stats article { display:flex;flex-direction:column;gap:4px;padding:16px 10px;border-radius:7px;background:#f2f5f2; }
+.results-stats article span { color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.1em; }
+.results-stats article strong { color:var(--ink);font:700 24px "Manrope"; }
+.results-stats article small { color:var(--muted);font-size:10px; }
+.game-results .run-button { margin:0 auto; }
 @media(max-width:950px) { .game-layout{grid-template-columns:1fr}.game-rules{display:block} }
 @media(max-width:620px) {
   .topbar{height:auto;min-height:64px;flex-wrap:wrap;padding:9px 18px}
@@ -123,6 +138,8 @@ select:focus,input:focus { border-color:var(--lime); }
   .answer-options{grid-template-columns:1fr}
   .answer-option{min-height:60px}
   .game-rules{display:block}
+  .game-results{margin:20px auto;padding:22px 16px}
+  .results-stats{grid-template-columns:1fr}
 }
 
 /* Keep the filters, summary cards, and charts on a consistent grid. */
