@@ -15,6 +15,8 @@ python -m uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 
 Open <http://127.0.0.1:8000>. The backend serves the frontend and fetches Yahoo Finance data, cached locally for six hours.
 
+Asset X and Asset Y each have their own custom ticker field. Enter a Yahoo Finance symbol and choose **Use** (or press Enter) to apply it to that asset and refresh the analysis.
+
 ## Project layout
 
 - `frontend/` — dashboard and Correlation Sprint

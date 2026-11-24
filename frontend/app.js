@@ -8,7 +8,7 @@ const tickerNames = {
 };
 const els = {};
 [
-  "assetX","assetY","metric","range","window","dayOffset","customDates","startDate","endDate","customTicker",
+  "assetX","assetY","metric","range","window","dayOffset","customDates","startDate","endDate","customTickerX","customTickerY","useTickerX","useTickerY",
   "runButton","error","pairTitle","status","nValue","dateValue","pearsonValue","pearsonP",
   "spearmanValue","spearmanP","scatterUnit","windowBadge","scatterChart","rollingChart","tooltip",
   "scatterSubtitle","rollingSubtitle","scatterOffsetBadge","rollingOffsetBadge","interpretationLabel","interpretationText","significanceText",
@@ -86,8 +86,20 @@ async function init() {
   els.assetY.value = "GC=F";
   els.range.addEventListener("change", () => els.customDates.hidden = els.range.value !== "CUSTOM");
   els.runButton.addEventListener("click", analyze);
-  els.customTicker.addEventListener("keydown", e => { if (e.key === "Enter") useCustomTicker(); });
-  els.customTicker.addEventListener("change", useCustomTicker);
+  els.useTickerX.addEventListener("click", () => applyCustomTicker("x"));
+  els.useTickerY.addEventListener("click", () => applyCustomTicker("y"));
+  els.customTickerX.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyCustomTicker("x");
+    }
+  });
+  els.customTickerY.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyCustomTicker("y");
+    }
+  });
   els.explorerTab.addEventListener("click", () => showView("explorer"));
   els.gameTab.addEventListener("click", () => showView("game"));
   els.methodTab.addEventListener("click", () => showView("explorer"));
@@ -108,14 +120,17 @@ function showView(view) {
   els.gameTab.classList.toggle("active", isGame);
 }
 
-function useCustomTicker() {
-  const ticker = els.customTicker.value.trim().toUpperCase();
+function applyCustomTicker(asset) {
+  const isAssetX = asset === "x";
+  const input = isAssetX ? els.customTickerX : els.customTickerY;
+  const selector = isAssetX ? els.assetX : els.assetY;
+  const ticker = input.value.trim().toUpperCase();
   if (!ticker) return;
-  if (![...els.assetX.options].some(o => o.value === ticker)) {
-    els.assetX.add(new Option(ticker, ticker));
+
+  if (![...selector.options].some(option => option.value === ticker)) {
+    selector.add(new Option(nameFor(ticker), ticker));
   }
-  els.assetX.value = ticker;
-  els.customTicker.value = "";
+  selector.value = ticker;
   analyze();
 }
 

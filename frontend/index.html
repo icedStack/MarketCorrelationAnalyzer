@@ -56,9 +56,15 @@
           <label><span>Start date</span><input type="date" id="startDate"></label>
           <label><span>End date</span><input type="date" id="endDate"></label>
         </div>
-        <div class="custom-ticker">
-          <label for="customTicker">Custom ticker</label>
-          <input id="customTicker" placeholder="e.g. MSFT or BTC-USD" />
+        <div class="custom-tickers">
+          <label class="custom-ticker" for="customTickerX">
+            <span>Custom Asset X ticker</span>
+            <span class="ticker-entry"><input id="customTickerX" placeholder="e.g. MSFT" /><button type="button" id="useTickerX">Use</button></span>
+          </label>
+          <label class="custom-ticker" for="customTickerY">
+            <span>Custom Asset Y ticker</span>
+            <span class="ticker-entry"><input id="customTickerY" placeholder="e.g. BTC-USD" /><button type="button" id="useTickerY">Use</button></span>
+          </label>
         </div>
         <button id="runButton" class="run-button"><span>Analyze relationship</span><span class="arrow">→</span></button>
       </section>
