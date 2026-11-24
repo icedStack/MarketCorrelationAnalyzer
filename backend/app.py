@@ -2,6 +2,8 @@ from pathlib import Path
 from datetime import timedelta
 from typing import Optional
 import json
+import os
+import tempfile
 import time
 
 from fastapi import FastAPI, HTTPException, Query
@@ -14,8 +16,11 @@ import yfinance as yf
 from scipy import stats
 
 APP_DIR = Path(__file__).resolve().parent
-CACHE_DIR = APP_DIR / ".cache"
-CACHE_DIR.mkdir(exist_ok=True)
+if os.environ.get("VERCEL"):
+    CACHE_DIR = Path(tempfile.gettempdir()) / "market-correlation-cache"
+else:
+    CACHE_DIR = APP_DIR / ".cache"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_TTL_SECONDS = 6 * 60 * 60
 WEB_DIR = APP_DIR.parent / "frontend"
 
